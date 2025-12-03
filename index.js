@@ -40,9 +40,12 @@ app.use(express.static(path.join(__dirname)));
 // Route racine
 
 
+app.use(function(err, request, response, next) {
+    console.error(err)
+    response.status(500).send('Something broke!')
+})
 
-// -- Démarrage du serveur --
-app.listen(port, () => {
-    console.log(`Serveur démarré sur http://localhost:${port}`);
-});
-
+app.use(function(request, response) {
+    console.log("404 Middleware exécuté")
+    response.status(404)
+})
