@@ -1,4 +1,3 @@
-<!--page principale, route racine-->
 <div class="main-content">
     <div class="hero-section">
         <h2>Bienvenue sur Vapeur</h2>
@@ -10,35 +9,61 @@
             <h3>Jeux mis en avant</h3>
             <div class="games-grid">
                 {{#each jeuxMisEnAvant}}
-                <a href="/jeux/{{id}}" class="card-link">
-                    <div class="game-card featured-game">
-                        <div class="game-image">
-                            {{#if image}}
-                                <img src="{{image}}" alt="{{titre}}" class="game-cover">
-                            {{else}}
-                                <div class="image-placeholder">
-                                    <span>Aucune image</span>
+                <div class="game-card-wrapper" data-game-id="{{id}}" data-featured="{{mis_avant}}">
+                    <a href="/jeux/{{id}}" class="card-link">
+                        <div class="game-card featured-game">
+                            <div class="game-image">
+                                {{#if image}}
+                                    <img src="{{image}}" alt="{{titre}}" class="game-cover">
+                                {{else}}
+                                    <div class="image-placeholder">
+                                        <span>Aucune image</span>
+                                    </div>
+                                {{/if}}
+                            </div>
+                            <div class="game-info">
+                                <h3>{{titre}}</h3>
+                                <div class="game-tags">
+                                    {{#each genres}}
+                                        <span class="genre-tag">{{genre.nom}}</span>
+                                    {{/each}}
                                 </div>
-                            {{/if}}
+                            </div>
+                            <div class="star-container">
+                                <button class="star-button active" data-game-id="{{id}}" 
+                                        title="Retirer des favoris">
+                                    ⭐
+                                </button>
+                            </div>
                         </div>
-                        <div class="game-title">
-                            <h3>{{titre}}</h3>
-                        </div>
-                        <div class="game-tags">
-                            {{#each genres}}
-                                <span class="genre-tag">{{genre.nom}}</span>
-                            {{/each}}
-                        </div>
-                    </div>
-                </a>
+                    </a>
                 </div>
                 {{/each}}
             </div>
         </div>
     {{else}}
-        <div class="no-featured-games">
+        <div class="empty-state">
+            <h2>Aucun jeu mis en avant</h2>
             <p>Aucun jeu n'est actuellement mis en avant.</p>
             <a href="/jeux" class="btn btn-primary">Voir tous les jeux</a>
+        </div>
+    {{/if}}
+
+    {{#if editeurs.length}}
+        <div class="editeurs-section">
+            <h3>Éditeurs</h3>
+            <div class="editeurs-grid-home">
+                {{#each editeurs}}
+                    <a href="/editeurs/{{id}}" class="card-link">
+                        <div class="editeur-card-home">
+                            <div class="editeur-info">
+                                <h4>{{nom}}</h4>
+                                <p class="editeur-count">{{nbJeux}} jeux</p>
+                            </div>
+                        </div>
+                    </a>
+                {{/each}}
+            </div>
         </div>
     {{/if}}
 </div>

@@ -1,0 +1,23 @@
+{{!-- Reusable game card component --}}
+<div class="game-card-wrapper" data-game-id="{{id}}" data-featured="{{mis_avant}}">
+    <a href="/jeux/{{id}}" class="card-link">
+        <div class="game-card{{#if featured}} featured-game{{/if}}">
+            <div class="game-image">
+                {{#if image}}
+                    <img src="{{image}}" alt="{{titre}}" class="game-cover">
+                {{else}}
+                    <div class="image-placeholder"><span>Aucune image</span></div>
+                {{/if}}
+            </div>
+            <div class="game-title"><h3>{{titre}}</h3></div>
+            <div class="game-tags">
+                {{#each genres}}
+                    <span class="genre-tag">{{genre.nom}}</span>
+                {{/each}}
+            </div>
+        </div>
+    </a>
+    {{#if showStar}}
+        <div class="featured-star {{#if mis_avant}}active{{/if}}" title="{{#if mis_avant}}Retirer de la mise en avant{{else}}Mettre en avant{{/if}}">⭐</div>
+    {{/if}}
+</div>

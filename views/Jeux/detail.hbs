@@ -1,34 +1,21 @@
 <main>
-    <div class="content-header">
-        <h1>{{jeu.titre}}</h1>
-        <div class="game-actions">
-            <a href="/jeux" class="btn btn-secondary">Retour à la liste</a>
-            <a href="/jeux/modifier/{{jeu.id}}" class="btn btn-primary">Modifier</a>
-            <form method="POST" action="/jeux/supprimer/{{jeu.id}}" style="display: inline;">
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce jeu ?')">Supprimer</button>
-            </form>
-        </div>
-    </div>
-
     <div class="game-detail">
         {{#if jeu.mis_avant}}
-            <div class="featured-banner">
-                <span class="featured-badge">Jeu mis en avant</span>
-            </div>
+            <div class="featured-banner"><span class="featured-badge">Jeu mis en avant</span></div>
         {{/if}}
 
         <div class="game-content">
-            <div class="game-image">
+            <div class="game-image-container">
                 {{#if jeu.image}}
-                    <img src="{{jeu.image}}" alt="{{jeu.titre}}" class="game-cover-detail">
+                    <img src="{{jeu.image}}" alt="{{jeu.titre}}" class="game-cover-detail-full">
                 {{else}}
-                    <div class="image-placeholder">
-                        <span>Aucune image disponible</span>
-                    </div>
+                    <div class="image-placeholder"><span>Aucune image disponible</span></div>
                 {{/if}}
             </div>
 
             <div class="game-details">
+                <h1 class="game-title-detail">{{jeu.titre}}</h1>
+                
                 <div class="detail-section">
                     <h3>Description</h3>
                     <p>{{jeu.description}}</p>
@@ -38,16 +25,10 @@
                     <h3>Informations</h3>
                     <div class="info-grid">
                         {{#if jeu.releaseDate}}
-                        <div class="info-item">
-                            <strong>Date de sortie :</strong>
-                            <span>{{formatDate jeu.releaseDate}} à {{formatTime jeu.releaseDate}}</span>
-                        </div>
+                            <div class="info-item"><strong>Date de sortie :</strong> <span>{{formatDate jeu.releaseDate}}</span></div>
                         {{/if}}
                         {{#if jeu.editeur}}
-                        <div class="info-item">
-                            <strong>Éditeur :</strong>
-                            <span>{{jeu.editeur.nom}}</span>
-                        </div>
+                            <div class="info-item"><strong>Éditeur :</strong> <span>{{jeu.editeur.nom}}</span></div>
                         {{/if}}
                     </div>
                 </div>
@@ -59,6 +40,14 @@
                             <a href="/genres/{{genre.id}}" class="genre-tag">{{genre.nom}}</a>
                         {{/each}}
                     </div>
+                </div>
+
+                <div class="game-actions">
+                    <a href="/jeux" class="btn btn-secondary">Retour à la liste</a>
+                    <a href="/jeux/modifier/{{jeu.id}}" class="btn btn-primary">Modifier</a>
+                    <form method="POST" action="/jeux/supprimer/{{jeu.id}}" style="display: inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce jeu ?')">Supprimer</button>
+                    </form>
                 </div>
             </div>
         </div>

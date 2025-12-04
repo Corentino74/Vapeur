@@ -1,0 +1,8 @@
+{{!-- Empty state component --}}
+<div class="empty-state">
+    <h2>{{title}}</h2>
+    <p>{{message}}</p>
+    {{#if actionUrl}}
+        <a href="{{actionUrl}}" class="btn {{actionClass}}">{{actionText}}</a>
+    {{/if}}
+</div>

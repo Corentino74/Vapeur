@@ -19,20 +19,22 @@
                                 </div>
                             {{/if}}
                         </div>
-                        <div class="game-title">
+                        <div class="game-info">
                             <h3>{{titre}}</h3>
+                            <div class="game-tags">
+                                {{#each genres}}
+                                    <span class="genre-tag">{{genre.nom}}</span>
+                                {{/each}}
+                            </div>
                         </div>
-                        <div class="game-tags">
-                            {{#each genres}}
-                                <span class="genre-tag">{{genre.nom}}</span>
-                            {{/each}}
+                        <div class="star-container">
+                            <button class="star-button {{#if mis_avant}}active{{/if}}" data-game-id="{{id}}" 
+                                    title="{{#if mis_avant}}Retirer des favoris{{else}}Ajouter aux favoris{{/if}}">
+                                ⭐
+                            </button>
                         </div>
                     </div>
                 </a>
-                <div class="featured-star {{#if mis_avant}}active{{/if}}" title="{{#if mis_avant}}Retirer de la mise en avant{{else}}Mettre en avant{{/if}}">
-                    ⭐
-                </div>
-
             </div>
             {{/each}}
         </div>

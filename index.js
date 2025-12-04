@@ -15,15 +15,31 @@ app.set("view engine", "hbs"); // On définit le moteur de template que Express 
 app.set("views", path.join(__dirname, "views")); // On définit le dossier des vues (dans lequel se trouvent les fichiers .hbs)
 hbs.registerPartials(path.join(__dirname, "views", "partials")); // On définit le dossier des partials (composants e.g. header, footer, menu...)
 
-// A VOIR SI CONSERVÉ !
-// Helpers Handlebars
+// Helpers Handlebars essentiels
+// Helper pour formater les dates en français
 hbs.registerHelper('formatDate', function(date) {
     if (!date) return '';
     return new Date(date).toLocaleDateString('fr-FR');
 });
 
+hbs.registerHelper('formatTime', function(date) {
+    if (!date) return '';
+    return new Date(date).toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+});
+
 hbs.registerHelper('eq', function(a, b) {
     return a === b;
+});
+
+hbs.registerHelper('unless', function(conditional, options) {
+    if (!conditional) {
+        return options.fn(this);
+    } else {
+        return options.inverse(this);
+    }
 });
 
 hbs.registerHelper('includes', function(array, value) {
@@ -36,25 +52,87 @@ hbs.registerHelper('includes', function(array, value) {
     });
 });
 
-hbs.registerHelper('formatTime', function(date) {
-    if (!date) return '';
-    return new Date(date).toLocaleTimeString('fr-FR', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-});
-
 hbs.registerHelper('isGenreSelected', function(jeuGenres, genreId) {
     if (!jeuGenres || !Array.isArray(jeuGenres)) return false;
     return jeuGenres.some(jeuGenre => jeuGenre.genre.id === genreId);
 });
 
+hbs.registerHelper('formField', function(options) {
+    const { type, id, name, label, placeholder, required, rows, value } = options.hash;
+    let input = '';
+    
+    switch (type) {
+        case 'text':
+        case 'url':
+        case 'date':
+            input = `<input type="${type}" id="${id}" name="${name}" class="form-control" ${placeholder ? `placeholder="${placeholder}"` : ''} ${required ? 'required' : ''} ${value ? `value="${value}"` : ''}>`;
+            break;
+        case 'textarea':
+            input = `<textarea id="${id}" name="${name}" class="form-control" ${rows ? `rows="${rows}"` : ''} ${required ? 'required' : ''}>${value || ''}</textarea>`;
+            break;
+        case 'select':
+            input = `<select id="${id}" name="${name}" class="form-control">${options.fn(this)}</select>`;
+            break;
+    }
+    
+    return new hbs.SafeString(
+        `<div class="form-group">
+            <label for="${id}">${label}</label>
+            ${input}
+        </div>`
+    );
+});
+
+// Helper for rendering buttons
+hbs.registerHelper('button', function(options) {
+    const { type = 'button', class: className = 'btn', href, onclick, text } = options.hash;
+    if (href) {
+        return new hbs.SafeString(`<a href="${href}" class="${className}">${text}</a>`);
+    }
+    return new hbs.SafeString(`<button type="${type}" class="${className}"${onclick ? ` onclick="${onclick}"` : ''}>${text}</button>`);
+});
+
+// Helper for form input groups
+hbs.registerHelper('formField', function(options) {
+    const { type = 'text', id, name, label, required, value = '', placeholder = '', rows } = options.hash;
+    const reqAttr = required ? ' required' : '';
+    const valAttr = value ? ` value="${value}"` : '';
+    const placeholderAttr = placeholder ? ` placeholder="${placeholder}"` : '';
+    
+    let input;
+    if (type === 'textarea') {
+        input = `<textarea id="${id}" name="${name}"${reqAttr}${rows ? ` rows="${rows}"` : ''}${placeholderAttr}>${value}</textarea>`;
+    } else if (type === 'select') {
+        input = `<select id="${id}" name="${name}"${reqAttr}>${options.fn(this)}</select>`;
+    } else {
+        input = `<input type="${type}" id="${id}" name="${name}"${reqAttr}${valAttr}${placeholderAttr}>`;
+    }
+    
+    return new hbs.SafeString(
+        `<div class="form-group">
+` +
+        `    <label for="${id}">${label}${required ? ' *' : ''}</label>
+` +
+        `    ${input}
+` +
+        `</div>`
+    );
+});
+
+// Helper for pluralization
+hbs.registerHelper('pluralize', function(count, singular, plural) {
+    return count === 1 ? singular : (plural || singular + 's');
+});
+
+
+
 // Body Parser 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+
+
 // Middleware pour les fichiers statiques (CSS, JS, images...)
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname)));
 
 // Prisma
@@ -95,7 +173,7 @@ async function initializeGenres() {
       });
     }
   } catch (error) {
-    console.error('Erreur lors de l\'initialisation des genres:', error);
+    console.error('Erreur lors de l\'initialisation des genres :', error);
   }
 }
 
@@ -114,14 +192,25 @@ app.get('/', async function(request, response) {
                     }
                 }
             },
-            orderBy: {
-                titre: 'asc'
-            }
+            orderBy: {titre: 'asc'}
         });
-        response.render("index", { jeuxMisEnAvant });
+
+        const editeurs = await prisma.editeur.findMany({
+            include: {
+                jeux_publies: true
+            },
+            orderBy: {nom: 'asc'}
+        });
+
+        const editeursAvecCompte = editeurs.map(editeur => ({
+            ...editeur,
+            nbJeux: editeur.jeux_publies.length
+        }));
+
+        response.render("index", { jeuxMisEnAvant, editeurs: editeursAvecCompte });
     } catch (error) {
-        console.error('Erreur lors de la récupération des jeux mis en avant:', error);
-        response.render("index", { jeuxMisEnAvant: [] });
+        console.error('Erreur lors du rendu de la page d\'accueil:', error);
+        response.status(500).send('Erreur 500: ' + error.message);
     }
 })
 
@@ -144,7 +233,6 @@ app.get('/jeux', async function(request, response) {
         });
         response.render("Jeux/index", { jeux });
     } catch (error) {
-        console.error('Erreur lors de la récupération des jeux:', error);
         response.render("Jeux/index", { jeux: [] });
     }
 });
@@ -160,7 +248,6 @@ app.get('/jeux/ajouter', async function(request, response) {
         });
         response.render("Jeux/ajouter", { genres, editeurs });
     } catch (error) {
-        console.error('Erreur lors du chargement du formulaire:', error);
         response.redirect('/jeux');
     }
 });
@@ -205,7 +292,6 @@ app.post('/jeux/ajouter', async function(request, response) {
 
         response.redirect('/jeux');
     } catch (error) {
-        console.error('Erreur lors de la création du jeu:', error);
         response.redirect('/jeux/ajouter');
     }
 });
@@ -239,7 +325,6 @@ app.get('/jeux/modifier/:id', async function(request, response) {
 
         response.render("Jeux/modifier", { jeu, genres, editeurs });
     } catch (error) {
-        console.error('Erreur lors du chargement du jeu:', error);
         response.redirect('/jeux');
     }
 });
@@ -295,7 +380,6 @@ app.post('/jeux/modifier/:id', async function(request, response) {
 
         response.redirect(`/jeux/${jeuId}`);
     } catch (error) {
-        console.error('Erreur lors de la modification du jeu:', error);
         response.redirect(`/jeux/modifier/${request.params.id}`);
     }
 });
@@ -312,7 +396,6 @@ app.post('/jeux/supprimer/:id', async function(request, response) {
 
         response.redirect('/jeux');
     } catch (error) {
-        console.error('Erreur lors de la suppression du jeu:', error);
         response.redirect('/jeux');
     }
 });
@@ -339,7 +422,6 @@ app.get('/jeux/:id', async function(request, response) {
 
         response.render("Jeux/detail", { jeu });
     } catch (error) {
-        console.error('Erreur lors de la récupération du jeu:', error);
         response.redirect('/jeux');
     }
 });
@@ -357,8 +439,78 @@ app.post('/jeux/:id/toggle-featured', async function(request, response) {
         
         response.json({ success: true });
     } catch (error) {
-        console.error('Erreur lors du basculement de la mise en avant:', error);
         response.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// API de recherche globale
+app.get('/api/search', async function(request, response) {
+    try {
+        const query = request.query.q;
+        if (!query || query.length < 2) {
+            return response.json({ results: [] });
+        }
+
+        const searchTerm = `%${query}%`;
+        
+        // Recherche dans les jeux
+        const jeux = await prisma.jeuVideo.findMany({
+            where: {
+                titre: {
+                    contains: query
+                }
+            },
+            take: 5,
+            orderBy: { titre: 'asc' }
+        });
+
+        // Recherche dans les genres
+        const genres = await prisma.genre.findMany({
+            where: {
+                nom: {
+                    contains: query
+                }
+            },
+            take: 3,
+            orderBy: { nom: 'asc' }
+        });
+
+        // Recherche dans les éditeurs
+        const editeurs = await prisma.editeur.findMany({
+            where: {
+                nom: {
+                    contains: query
+                }
+            },
+            take: 3,
+            orderBy: { nom: 'asc' }
+        });
+
+        // Formater les résultats
+        const results = [
+            ...jeux.map(jeu => ({
+                id: jeu.id,
+                titre: jeu.titre,
+                type: 'jeu',
+                url: `/jeux/${jeu.id}`
+            })),
+            ...genres.map(genre => ({
+                id: genre.id,
+                titre: genre.nom,
+                type: 'genre',
+                url: `/genres/${genre.id}`
+            })),
+            ...editeurs.map(editeur => ({
+                id: editeur.id,
+                titre: editeur.nom,
+                type: 'editeur',
+                url: `/editeurs/${editeur.id}`
+            }))
+        ];
+
+        response.json({ results });
+    } catch (error) {
+        response.status(500).json({ results: [], error: error.message });
     }
 });
 
@@ -390,7 +542,6 @@ app.get('/genres', async function(request, response) {
         
         response.render("Genres/index", { genres: genresAvecCompte });
     } catch (error) {
-        console.error('Erreur lors de la récupération des genres:', error);
         response.render("Genres/index", { genres: [] });
     }
 });
@@ -428,7 +579,6 @@ app.get('/genres/:id', async function(request, response) {
 
         response.render("Genres/detail", { genre, jeux });
     } catch (error) {
-        console.error('Erreur lors de la récupération du genre:', error);
         response.redirect('/genres');
     }
 });
@@ -455,7 +605,6 @@ app.get('/editeurs', async function(request, response) {
         
         response.render("Editeurs/index", { editeurs: editeursAvecCompte });
     } catch (error) {
-        console.error('Erreur lors de la récupération des éditeurs:', error);
         response.render("Editeurs/index", { editeurs: [] });
     }
 });
@@ -476,7 +625,6 @@ app.post('/editeurs/ajouter', async function(request, response) {
 
         response.redirect('/editeurs');
     } catch (error) {
-        console.error('Erreur lors de la création de l\'éditeur:', error);
         response.redirect('/editeurs/ajouter');
     }
 });
@@ -498,7 +646,6 @@ app.get('/editeurs/modifier/:id', async function(request, response) {
 
         response.render("Editeurs/modifier", { editeur });
     } catch (error) {
-        console.error('Erreur lors du chargement de l\'éditeur:', error);
         response.redirect('/editeurs');
     }
 });
@@ -516,7 +663,6 @@ app.post('/editeurs/modifier/:id', async function(request, response) {
 
         response.redirect(`/editeurs/${editeurId}`);
     } catch (error) {
-        console.error('Erreur lors de la modification de l\'éditeur:', error);
         response.redirect(`/editeurs/modifier/${request.params.id}`);
     }
 });
@@ -532,7 +678,6 @@ app.post('/editeurs/supprimer/:id', async function(request, response) {
 
         response.redirect('/editeurs');
     } catch (error) {
-        console.error('Erreur lors de la suppression de l\'éditeur:', error);
         response.redirect('/editeurs');
     }
 });
@@ -565,7 +710,6 @@ app.get('/editeurs/:id', async function(request, response) {
 
         response.render("Editeurs/detail", { editeur });
     } catch (error) {
-        console.error('Erreur lors de la récupération de l\'éditeur:', error);
         response.redirect('/editeurs');
     }
 });
@@ -573,24 +717,41 @@ app.get('/editeurs/:id', async function(request, response) {
 // ---- Middlewares d'erreurs ----
 
 app.use(function(err, request, response, next) {
-    console.error(err)
     response.status(500).send('Something broke!')
 })
 
 app.use(function(request, response) {
-    console.log("404 Middleware exécuté")
-    response.render("index"); // Renvoi à la page d'accueil pour l'instant, mais problème de navigation ? Lien incorrect ?
+    response.status(404);
+    if (request.accepts('html')) {
+        response.render("index", { error: "Page non trouvée" });
+    } else if (request.accepts('json')) {
+        response.json({ error: 'Page non trouvée' });
+    } else {
+        response.type('txt').send('Page non trouvée');
+    }
 })
 
 
 // ---- Lancement du serveur ----
 async function startServer() {
-    // Initialiser les genres avant de démarrer le serveur
-    await initializeGenres();
-    
-    // Démarrer le serveur
-    app.listen(port, function() {
-        console.log(`Server is running at http://localhost:${port}`);
-    });
+    try {
+        console.log('Démarrage du serveur...');
+        // Initialiser les genres avant de démarrer le serveur
+        console.log('Initialisation des genres...');
+        await initializeGenres();
+        console.log('Genres initialisés avec succès');
+        
+        // Démarrer le serveur
+        app.listen(port, function() {
+            console.log(`Server running on http://localhost:${port}`);
+        });
+    } catch (error) {
+        console.error('Erreur lors du démarrage du serveur:', error);
+        process.exit(1);
+    }
 }
-startServer();
+
+startServer().catch(error => {
+    console.error('Erreur fatale:', error);
+    process.exit(1);
+});

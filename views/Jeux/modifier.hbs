@@ -5,24 +5,13 @@
     </div>
 
     <form method="POST" action="/jeux/modifier/{{jeu.id}}" class="game-form">
-        <div class="form-group">
-            <label for="titre">Titre du jeu *</label>
-            <input type="text" id="titre" name="titre" value="{{jeu.titre}}" required>
-        </div>
-
-        <div class="form-group">
-            <label for="description">Description</label>
-            <textarea id="description" name="description" rows="4">{{jeu.description}}</textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="releaseDate">Date de sortie</label>
-            <input type="date" id="releaseDate" name="releaseDate" value="{{formatDate jeu.releaseDate}}">
-        </div>
-
+        {{formField type="text" id="titre" name="titre" label="Titre du jeu" value=jeu.titre required=true}}
+        {{formField type="textarea" id="description" name="description" label="Description" value=jeu.description rows="4"}}
+        {{formField type="date" id="releaseDate" name="releaseDate" label="Date de sortie" value=(formatDate jeu.releaseDate)}}
+        
         <div class="form-group">
             <label for="editeurId">Éditeur</label>
-            <select id="editeurId" name="editeurId">
+            <select id="editeurId" name="editeurId" class="form-control">
                 <option value="">Sélectionnez un éditeur (optionnel)</option>
                 {{#each editeurs}}
                     <option value="{{id}}" {{#if (eq id ../jeu.editeurId)}}selected{{/if}}>{{nom}}</option>
@@ -35,19 +24,15 @@
             <div class="checkbox-group">
                 {{#each genres}}
                     <label class="checkbox-label">
-                        <input type="checkbox" name="genreIds" value="{{id}}" 
-                               {{#if (isGenreSelected ../jeu.genres id)}}checked{{/if}}>
+                        <input type="checkbox" name="genreIds" value="{{id}}" {{#if (isGenreSelected ../jeu.genres id)}}checked{{/if}}>
                         {{nom}}
                     </label>
                 {{/each}}
             </div>
         </div>
-
-        <div class="form-group">
-            <label for="image">URL de l'image</label>
-            <input type="url" id="image" name="image" value="{{jeu.image}}" placeholder="https://exemple.com/image.jpg">
-        </div>
-
+        
+        {{formField type="url" id="image" name="image" label="URL de l'image" value=jeu.image placeholder="https://exemple.com/image.jpg"}}
+        
         <div class="form-group">
             <label class="checkbox-label">
                 <input type="checkbox" name="mis_avant" {{#if jeu.mis_avant}}checked{{/if}}>
