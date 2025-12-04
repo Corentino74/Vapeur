@@ -18,60 +18,87 @@
 
 ## 📁 Structure globale du projet
 
-**Version en cours de dévloppement !**
+**Version en cours de développement !**
 ```
 Vapeur/
-├── img/                   # Images utilisées
-│   ├── fond.png              # Image de fond
-│   └── vapeur.png            # Logo principal
-├──prisma/                # Configuration base de données
-│   └── schema.prisma         # Schéma de la DB
-├──views/                 # Templates Handlebars
-│   ├── Editeurs/         # Pages éditeurs
-│   │   └── index.hbs        
-│   ├── Genres/           # Pages genres
-│   │   └── index.hbs        
-│   ├── Jeux/             # Pages jeux
-│   │   └── index.hbs        
-│   ├── partials/         # Composants réutilisables
+├── img/                      # Images utilisées
+│   ├── fond.png             # Image de fond
+│   └── vapeur.png           # Logo principal
+├── js/                      # Scripts côté client
+│   └── featured.js          # Système d'étoiles pour jeux mis en avant
+├── pages/                   # Pages statiques
+├── prisma/                  # Configuration base de données
+│   ├── schema.prisma        # Schéma de la DB (SQLite)
+│   └── migrations/          # Historique des migrations
+├── views/                   # Templates Handlebars
+│   ├── Editeurs/            # Pages éditeurs
+│   │   ├── index.hbs        # Liste des éditeurs
+│   │   ├── detail.hbs       # Page détail éditeur
+│   │   ├── ajouter.hbs      # Formulaire ajout éditeur
+│   │   └── modifier.hbs     # Formulaire modification éditeur
+│   ├── Genres/              # Pages genres  
+│   │   ├── index.hbs        # Liste des genres
+│   │   └── detail.hbs       # Page détail genre (jeux associés)
+│   ├── Jeux/                # Pages jeux
+│   │   ├── index.hbs        # Liste des jeux
+│   │   ├── detail.hbs       # Page détail jeu
+│   │   ├── ajouter.hbs      # Formulaire ajout jeu
+│   │   └── modifier.hbs     # Formulaire modification jeu
+│   ├── partials/            # Composants réutilisables
 │   │   ├── header.hbs       # Navigation principale
 │   │   └── footer.hbs       # Pied de page
 │   ├── layout.hbs           # Template principal
-│   └── index.hbs            # Page d'accueil
-├── general.css           # Styles principaux
-├── index.js              # Serveur Express principal
-├── package.json          # Dépendances npm
-├── prisma.config.ts      # Configuration Prisma
-└── README.md             # Documentation
+│   └── index.hbs            # Page d'accueil avec jeux mis en avant
+├── general.css              # Styles principaux (design Steam-like)
+├── index.js                 # Serveur Express avec toutes les routes
+├── package.json             # Dépendances npm
+├── prisma.config.ts         # Configuration Prisma TypeScript
+└── README.md                # Documentation
 ```
 
 ## 🗄️ Modèle de données
 
 ```prisma
+// Jeux vidéo - Modèle principal
 model JeuVideo {
-  id          Int      @id @default(autoincrement())
-  titre       String   @unique
+  id          Int       @id @default(autoincrement())
+  titre       String    @unique
   description String
-  releaseDate DateTime @default(now())
-  mis_avant   Boolean  @default(false)
+  releaseDate DateTime? // Date optionnelle
+  mis_avant   Boolean   @default(false) // Système d'étoiles pour page d'accueil
+  image       String?   // URL ou chemin vers l'image du jeu (optionnel)
   
   // Relations
-  genre       Genre    @relation(fields: [genreId], references: [id])
-  genreId     Int
-  editeur     Editeur  @relation(fields: [editeurId], references: [id])
-  editeurId   Int
+  editeur     Editeur?  @relation(fields: [editeurId], references: [id])
+  editeurId   Int?      // Éditeur optionnel
+  genres      JeuVideoGenre[] // Relation Many-to-Many avec les genres
 }
 
+// Genres de jeux - Liste prédéfinie
 model Genre {
-  id            Int         @id @default(autoincrement())
-  nom           String      @unique
-  jeux_associes JeuVideo[]
+  id    Int    @id @default(autoincrement())
+  nom   String @unique
+  
+  // Relation Many-to-Many avec les jeux
+  jeux  JeuVideoGenre[]
 }
 
+// Table de jointure pour la relation Many-to-Many Jeux <-> Genres
+model JeuVideoGenre {
+  jeu     JeuVideo @relation(fields: [jeuId], references: [id], onDelete: Cascade)
+  jeuId   Int
+  genre   Genre    @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId Int
+  @@id([jeuId, genreId])
+}
+
+// Éditeurs de jeux
 model Editeur {
-  id           Int         @id @default(autoincrement())
-  nom          String      @unique
-  jeux_publies JeuVideo[]
+  id           Int        @id @default(autoincrement())
+  nom          String     @unique
+  
+  // Relations
+  jeux_publies JeuVideo[] // Un éditeur peut publier plusieurs jeux
 }
 ```
 

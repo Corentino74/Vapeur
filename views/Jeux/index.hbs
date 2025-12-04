@@ -1,0 +1,46 @@
+<main>
+    <div class="content-header">
+        <h1>Bibliothèque de jeux</h1>
+        <a href="/jeux/ajouter" class="btn btn-primary">Ajouter un jeu</a>
+    </div>
+
+    {{#if jeux.length}}
+        <div class="games-grid">
+            {{#each jeux}}
+            <div class="game-card-wrapper" data-game-id="{{id}}" data-featured="{{mis_avant}}">
+                <a href="/jeux/{{id}}" class="card-link">
+                    <div class="game-card">
+                        <div class="game-image">
+                            {{#if image}}
+                                <img src="{{image}}" alt="{{titre}}" class="game-cover">
+                            {{else}}
+                                <div class="image-placeholder">
+                                    <span>Aucune image</span>
+                                </div>
+                            {{/if}}
+                        </div>
+                        <div class="game-title">
+                            <h3>{{titre}}</h3>
+                        </div>
+                        <div class="game-tags">
+                            {{#each genres}}
+                                <span class="genre-tag">{{genre.nom}}</span>
+                            {{/each}}
+                        </div>
+                    </div>
+                </a>
+                <div class="featured-star {{#if mis_avant}}active{{/if}}" title="{{#if mis_avant}}Retirer de la mise en avant{{else}}Mettre en avant{{/if}}">
+                    ⭐
+                </div>
+
+            </div>
+            {{/each}}
+        </div>
+    {{else}}
+        <div class="empty-state">
+            <h2>Aucun jeu dans votre bibliothèque</h2>
+            <p>Commencez par ajouter votre premier jeu !</p>
+            <a href="/jeux/ajouter" class="btn btn-primary">Ajouter un jeu</a>
+        </div>
+    {{/if}}
+</main>

@@ -1,0 +1,25 @@
+<main>
+    <div class="content-header">
+        <h1>Genres de jeux</h1>
+    </div>
+
+    {{#if genres.length}}
+        <div class="genres-grid">
+            {{#each genres}}
+            <a href="/genres/{{id}}" class="card-link">
+                <div class="genre-card">
+                    <div class="genre-info">
+                        <h3>{{nom}}</h3>
+                        <p class="genre-count">{{nbJeux}} jeu{{#unless (eq nbJeux 1)}}x{{/unless}}</p>
+                    </div>
+                </div>
+            </a>
+            {{/each}}
+        </div>
+    {{else}}
+        <div class="empty-state">
+            <h2>Aucun genre disponible</h2>
+            <p>Les genres sont initialisés automatiquement au démarrage du serveur.</p>
+        </div>
+    {{/if}}
+</main>

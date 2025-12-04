@@ -1,0 +1,62 @@
+<main>
+    <div class="content-header">
+        <h1>Ajouter un jeu</h1>
+        <a href="/jeux" class="btn btn-secondary">Retour à la liste</a>
+    </div>
+
+    <form method="POST" action="/jeux/ajouter" class="game-form">
+        <div class="form-group">
+            <label for="titre">Titre du jeu *</label>
+            <input type="text" id="titre" name="titre" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="releaseDate">Date de sortie</label>
+            <input type="date" id="releaseDate" name="releaseDate">
+        </div>
+
+        <div class="form-group">
+            <label for="editeurId">Éditeur</label>
+            <select id="editeurId" name="editeurId">
+                <option value="">Sélectionnez un éditeur (optionnel)</option>
+                {{#each editeurs}}
+                    <option value="{{id}}">{{nom}}</option>
+                {{/each}}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Genres</label>
+            <div class="checkbox-group">
+                {{#each genres}}
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="genreIds" value="{{id}}">
+                        {{nom}}
+                    </label>
+                {{/each}}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="image">URL de l'image</label>
+            <input type="url" id="image" name="image" placeholder="https://exemple.com/image.jpg">
+        </div>
+
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="mis_avant">
+                Mettre en avant ce jeu
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Ajouter le jeu</button>
+            <a href="/jeux" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</main>

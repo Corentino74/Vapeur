@@ -1,0 +1,30 @@
+<main>
+    <div class="content-header">
+        <h1>Éditeurs de jeux</h1>
+        <a href="/editeurs/ajouter" class="btn btn-primary">Ajouter un éditeur</a>
+    </div>
+
+    {{#if editeurs.length}}
+        <div class="editeurs-grid">
+            {{#each editeurs}}
+            <div class="editeur-card-wrapper">
+                <a href="/editeurs/{{id}}" class="card-link">
+                    <div class="editeur-card">
+                        <div class="editeur-info">
+                            <h3>{{nom}}</h3>
+                            <p class="editeur-count">{{nbJeux}} jeu{{#unless (eq nbJeux 1)}}x{{/unless}} publié{{#unless (eq nbJeux 1)}}s{{/unless}}</p>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+            {{/each}}
+        </div>
+    {{else}}
+        <div class="empty-state">
+            <h2>Aucun éditeur dans la base</h2>
+            <p>Commencez par ajouter votre premier éditeur !</p>
+            <a href="/editeurs/ajouter" class="btn btn-primary">Ajouter un éditeur</a>
+        </div>
+    {{/if}}
+</main>

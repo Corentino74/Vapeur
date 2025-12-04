@@ -1,0 +1,18 @@
+<main>
+    <div class="content-header">
+        <h1>Ajouter un éditeur</h1>
+        <a href="/editeurs" class="btn btn-secondary">Retour à la liste</a>
+    </div>
+
+    <form method="POST" action="/editeurs/ajouter" class="game-form">
+        <div class="form-group">
+            <label for="nom">Nom de l'éditeur *</label>
+            <input type="text" id="nom" name="nom" required>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Ajouter l'éditeur</button>
+            <a href="/editeurs" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</main>

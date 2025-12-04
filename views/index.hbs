@@ -5,21 +5,40 @@
         <p>Votre plateforme de jeux vidéo préférée</p>
     </div>
     
-    <div class="mise-en-avant-section">
-        <h3>Jeux en vedette</h3>
-        <div class="games-grid">
-            <div class="game-card">
-                <h4>Jeu 1</h4>
-                <p>Description du jeu...</p>
-            </div>
-            <div class="game-card">
-                <h4>Jeu 2</h4>
-                <p>Description du jeu...</p>
-            </div>
-            <div class="game-card">
-                <h4>Jeu 3</h4>
-                <p>Description du jeu...</p>
+    {{#if jeuxMisEnAvant.length}}
+        <div class="mise-en-avant-section">
+            <h3>Jeux mis en avant</h3>
+            <div class="games-grid">
+                {{#each jeuxMisEnAvant}}
+                <a href="/jeux/{{id}}" class="card-link">
+                    <div class="game-card featured-game">
+                        <div class="game-image">
+                            {{#if image}}
+                                <img src="{{image}}" alt="{{titre}}" class="game-cover">
+                            {{else}}
+                                <div class="image-placeholder">
+                                    <span>Aucune image</span>
+                                </div>
+                            {{/if}}
+                        </div>
+                        <div class="game-title">
+                            <h3>{{titre}}</h3>
+                        </div>
+                        <div class="game-tags">
+                            {{#each genres}}
+                                <span class="genre-tag">{{genre.nom}}</span>
+                            {{/each}}
+                        </div>
+                    </div>
+                </a>
+                </div>
+                {{/each}}
             </div>
         </div>
-    </div>
+    {{else}}
+        <div class="no-featured-games">
+            <p>Aucun jeu n'est actuellement mis en avant.</p>
+            <a href="/jeux" class="btn btn-primary">Voir tous les jeux</a>
+        </div>
+    {{/if}}
 </div>
