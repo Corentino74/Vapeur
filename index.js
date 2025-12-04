@@ -10,127 +10,19 @@ const port = 8080;
 
 // Handlebars
 const hbs = require("hbs");
+const { registerHandlebarsHelpers } = require('./js/helpers');
+
 // Configuration de Handlebars pour Express
-app.set("view engine", "hbs"); // On définit le moteur de template que Express va utiliser
-app.set("views", path.join(__dirname, "views")); // On définit le dossier des vues (dans lequel se trouvent les fichiers .hbs)
+app.set("view engine", "hbs");                      // On définit le moteur de template que Express va utiliser
+app.set("views", path.join(__dirname, "views"));    // On définit le dossier des vues (dans lequel se trouvent les fichiers .hbs)
 hbs.registerPartials(path.join(__dirname, "views", "partials")); // On définit le dossier des partials (composants e.g. header, footer, menu...)
 
-// Helpers Handlebars essentiels
-// Helper pour formater les dates en français
-hbs.registerHelper('formatDate', function(date) {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString('fr-FR');
-});
-
-hbs.registerHelper('formatTime', function(date) {
-    if (!date) return '';
-    return new Date(date).toLocaleTimeString('fr-FR', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-});
-
-hbs.registerHelper('eq', function(a, b) {
-    return a === b;
-});
-
-hbs.registerHelper('unless', function(conditional, options) {
-    if (!conditional) {
-        return options.fn(this);
-    } else {
-        return options.inverse(this);
-    }
-});
-
-hbs.registerHelper('includes', function(array, value) {
-    if (!array || !Array.isArray(array)) return false;
-    return array.some(item => {
-        if (typeof item === 'object' && item.genre) {
-            return item.genre.id === value;
-        }
-        return item === value;
-    });
-});
-
-hbs.registerHelper('isGenreSelected', function(jeuGenres, genreId) {
-    if (!jeuGenres || !Array.isArray(jeuGenres)) return false;
-    return jeuGenres.some(jeuGenre => jeuGenre.genre.id === genreId);
-});
-
-hbs.registerHelper('formField', function(options) {
-    const { type, id, name, label, placeholder, required, rows, value } = options.hash;
-    let input = '';
-    
-    switch (type) {
-        case 'text':
-        case 'url':
-        case 'date':
-            input = `<input type="${type}" id="${id}" name="${name}" class="form-control" ${placeholder ? `placeholder="${placeholder}"` : ''} ${required ? 'required' : ''} ${value ? `value="${value}"` : ''}>`;
-            break;
-        case 'textarea':
-            input = `<textarea id="${id}" name="${name}" class="form-control" ${rows ? `rows="${rows}"` : ''} ${required ? 'required' : ''}>${value || ''}</textarea>`;
-            break;
-        case 'select':
-            input = `<select id="${id}" name="${name}" class="form-control">${options.fn(this)}</select>`;
-            break;
-    }
-    
-    return new hbs.SafeString(
-        `<div class="form-group">
-            <label for="${id}">${label}</label>
-            ${input}
-        </div>`
-    );
-});
-
-// Helper for rendering buttons
-hbs.registerHelper('button', function(options) {
-    const { type = 'button', class: className = 'btn', href, onclick, text } = options.hash;
-    if (href) {
-        return new hbs.SafeString(`<a href="${href}" class="${className}">${text}</a>`);
-    }
-    return new hbs.SafeString(`<button type="${type}" class="${className}"${onclick ? ` onclick="${onclick}"` : ''}>${text}</button>`);
-});
-
-// Helper for form input groups
-hbs.registerHelper('formField', function(options) {
-    const { type = 'text', id, name, label, required, value = '', placeholder = '', rows } = options.hash;
-    const reqAttr = required ? ' required' : '';
-    const valAttr = value ? ` value="${value}"` : '';
-    const placeholderAttr = placeholder ? ` placeholder="${placeholder}"` : '';
-    
-    let input;
-    if (type === 'textarea') {
-        input = `<textarea id="${id}" name="${name}"${reqAttr}${rows ? ` rows="${rows}"` : ''}${placeholderAttr}>${value}</textarea>`;
-    } else if (type === 'select') {
-        input = `<select id="${id}" name="${name}"${reqAttr}>${options.fn(this)}</select>`;
-    } else {
-        input = `<input type="${type}" id="${id}" name="${name}"${reqAttr}${valAttr}${placeholderAttr}>`;
-    }
-    
-    return new hbs.SafeString(
-        `<div class="form-group">
-` +
-        `    <label for="${id}">${label}${required ? ' *' : ''}</label>
-` +
-        `    ${input}
-` +
-        `</div>`
-    );
-});
-
-// Helper for pluralization
-hbs.registerHelper('pluralize', function(count, singular, plural) {
-    return count === 1 ? singular : (plural || singular + 's');
-});
-
-
+// Enregistrer tous les helpers Handlebars depuis le fichier externe helper.js
+registerHandlebarsHelpers(hbs);
 
 // Body Parser 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-
 
 // Middleware pour les fichiers statiques (CSS, JS, images...)
 app.use(express.static(path.join(__dirname)));
@@ -141,50 +33,18 @@ const prisma = new PrismaClient();
 
 
 // ---- Initialisation des données ----
-
-// Genres de jeux
-const genresPredefined = [
-  { nom: 'Action' },
-  { nom: 'Aventure' },
-  { nom: 'RPG' },
-  { nom: 'Simulation' },
-  { nom: 'Sport' },
-  { nom: 'MMORPG' },
-  { nom: 'Sandbox' },
-  { nom: 'Shooter' },
-  { nom: 'Tour par tour' },
-  { nom: 'Horreur' },
-  { nom: 'Stratégie' },
-  { nom: 'Puzzle' },
-  { nom: 'Course' },
-  { nom: 'Plateforme' },
-  { nom: 'Combat' }, 
-  { nom: 'Pvp' }
-];
-
-// Fonction pour initialiser les genres prédéfinis
-async function initializeGenres() {
-  try {
-    for (const genre of genresPredefined) {
-      await prisma.genre.upsert({
-        where: { nom: genre.nom },
-        update: {},
-        create: genre
-      });
-    }
-  } catch (error) {
-    console.error('Erreur lors de l\'initialisation des genres :', error);
-  }
-}
+const { initializeGenres } = require('./js/database');
 
 // ----** Routes **---- 
 
-// -- Route racine
+// -- Route racine, soit la page principale
 app.get('/', async function(request, response) {
+   
     try {
-        const jeuxMisEnAvant = await prisma.jeuVideo.findMany({
-            where: { mis_avant: true },
-            include: {
+        //partie jeu en avant
+        const jeuxMisEnAvant = await prisma.jeuVideo.findMany({ // récupérer les jeux mis en avant via une variable par requete prisma
+            where: { mis_avant: true }, // uniquement les jeux mis en avant
+            include: {  // inclure les relations
                 editeur: true,
                 genres: {
                     include: {
@@ -192,32 +52,32 @@ app.get('/', async function(request, response) {
                     }
                 }
             },
-            orderBy: {titre: 'asc'}
+            orderBy: {titre: 'asc'}     // tri par ordre alphabetique
         });
-
+        //partie editeur (tous les éditeurs car pas de fonctionnalité de mise en avant pour cette entité)
         const editeurs = await prisma.editeur.findMany({
             include: {
                 jeux_publies: true
             },
             orderBy: {nom: 'asc'}
         });
-
-        const editeursAvecCompte = editeurs.map(editeur => ({
-            ...editeur,
-            nbJeux: editeur.jeux_publies.length
+        // Calculer le nombre de jeux par éditeur
+        const CompteJeux = editeurs.map(editeur => ({ 
+            ...editeur,                             // ... sert à copier toutes les propriétés de l'éditeur
+            nbJeux: editeur.jeux_publies.length     // => permet de compter le nombre de jeux publiés par chaque éditeur
         }));
 
-        response.render("index", { jeuxMisEnAvant, editeurs: editeursAvecCompte });
-    } catch (error) {
-        console.error('Erreur lors du rendu de la page d\'accueil:', error);
+        response.render("index", { jeuxMisEnAvant, editeurs: CompteJeux });
+    } catch (error) { // en cas d'erreur, log dans la console et envoi d'erreur 500
+        console.error('Erreur lors du chargement de la page principale:', error);
         response.status(500).send('Erreur 500: ' + error.message);
     }
 })
 
 // -- Routes Jeux 
-// Page liste des jeux (triés alphabétiquement)
+// Page liste des jeux
 app.get('/jeux', async function(request, response) {
-    try {
+    try {   // à la différence de la page principale, on utilise pas where
         const jeux = await prisma.jeuVideo.findMany({
             include: {
                 editeur: true,
@@ -228,18 +88,19 @@ app.get('/jeux', async function(request, response) {
                 }
             },
             orderBy: {
-                titre: 'asc'
+                titre: 'asc' // Tri par ordre alphabétique
             }
         });
         response.render("Jeux/index", { jeux });
-    } catch (error) {
-        response.render("Jeux/index", { jeux: [] });
+    } catch (error) { // en cas d'erreur...
+        response.status(500).send('Erreur 500: ' + error.message);
+        console.error('Erreur lors du chargement de la liste des jeux:', error);
     }
 });
 
 // Formulaire d'ajout d'un jeu
 app.get('/jeux/ajouter', async function(request, response) {
-    try {
+    try { // Récupérer les genres et éditeurs pour les listes déroulantes, dans une fonction plutôt qu'une variable globale pour éviter les problèmes de synchronisation
         const genres = await prisma.genre.findMany({
             orderBy: { nom: 'asc' }
         });
@@ -280,11 +141,11 @@ app.post('/jeux/ajouter', async function(request, response) {
         // Associer les genres
         if (genreIds) {
             const genreIdsArray = Array.isArray(genreIds) ? genreIds : [genreIds];
-            for (const genreId of genreIdsArray) {
+            for (const genreId of genreIdsArray) {  // pour chaque genre sélectionné
                 await prisma.jeuVideoGenre.create({
                     data: {
                         jeuId: jeu.id,
-                        genreId: parseInt(genreId)
+                        genreId: parseInt(genreId)  // Convertir en entier
                     }
                 });
             }
@@ -299,7 +160,7 @@ app.post('/jeux/ajouter', async function(request, response) {
 // Formulaire de modification d'un jeu
 app.get('/jeux/modifier/:id', async function(request, response) {
     try {
-        const jeuId = parseInt(request.params.id);
+        const jeuId = parseInt(request.params.id);  // Récupérer l'ID du jeu depuis les paramètres de l'URL => convertir en entier, on utilise Body Parser
         const jeu = await prisma.jeuVideo.findUnique({
             where: { id: jeuId },
             include: {
@@ -311,10 +172,6 @@ app.get('/jeux/modifier/:id', async function(request, response) {
                 }
             }
         });
-
-        if (!jeu) {
-            return response.redirect('/jeux');
-        }
 
         const genres = await prisma.genre.findMany({
             orderBy: { nom: 'asc' }
@@ -329,7 +186,7 @@ app.get('/jeux/modifier/:id', async function(request, response) {
     }
 });
 
-// Traitement modification d'un jeu
+// => Traitement modification d'un jeu
 app.post('/jeux/modifier/:id', async function(request, response) {
     try {
         const jeuId = parseInt(request.params.id);
@@ -388,12 +245,9 @@ app.post('/jeux/modifier/:id', async function(request, response) {
 app.post('/jeux/supprimer/:id', async function(request, response) {
     try {
         const jeuId = parseInt(request.params.id);
-        
-        // Supprimer les relations genres (cascade automatique)
         await prisma.jeuVideo.delete({
             where: { id: jeuId }
         });
-
         response.redirect('/jeux');
     } catch (error) {
         response.redirect('/jeux');
@@ -735,15 +589,11 @@ app.use(function(request, response) {
 // ---- Lancement du serveur ----
 async function startServer() {
     try {
-        console.log('Démarrage du serveur...');
-        // Initialiser les genres avant de démarrer le serveur
-        console.log('Initialisation des genres...');
-        await initializeGenres();
-        console.log('Genres initialisés avec succès');
-        
-        // Démarrer le serveur
+        // Initialiser les genres avant (await) de démarrer le serveur
+        await initializeGenres(prisma);
+
         app.listen(port, function() {
-            console.log(`Server running on http://localhost:${port}`);
+            console.log(`Serveur : http://localhost:${port}`);
         });
     } catch (error) {
         console.error('Erreur lors du démarrage du serveur:', error);
