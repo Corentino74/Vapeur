@@ -28,15 +28,49 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 
+// ---- Initialisation des données ----
+
+// Genres de jeux
+const genresPredefined = [
+  { nom: 'Action' },
+  { nom: 'Aventure' },
+  { nom: 'RPG' },
+  { nom: 'Simulation' },
+  { nom: 'Sport' },
+  { nom: 'MMORPG' },
+  { nom: 'Sandbox' },
+  { nom: 'Shooter' },
+  { nom: 'Tour par tour' },
+  { nom: 'Horreur' },
+  { nom: 'Stratégie' },
+  { nom: 'Puzzle' },
+  { nom: 'Course' },
+  { nom: 'Plateforme' },
+  { nom: 'Combat' }, 
+  { nom: 'Pvp' }
+];
+
+// Fonction pour initialiser les genres prédéfinis
+async function initializeGenres() {
+  try {
+    for (const genre of genresPredefined) {
+      await prisma.genre.upsert({
+        where: { nom: genre.nom },
+        update: {},
+        create: genre
+      });
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'initialisation des genres:', error);
+  }
+}
 
 // ----** Routes **---- 
-
 
 // -- Route racine
 app.get('/', function(request, response) {
     response.render("index");
 })
-
 
 // -- Routes Jeux 
 //-Page liste des jeux
@@ -62,14 +96,6 @@ app.get('/jeux/:id', async function(request, response) {
 app.get('/genres', async function(request, response) {
     response.render("Genres/index");
 })
-//-Formulaire d'ajout d'un genre
-app.get('/genres/ajouter', async function(request, response) {  
-    //TODO: envoyer le formulaire d'ajout d'un genre
-});
-//-Modification d'un genre
-app.get('/genres/modifier/:id', async function(request, response) {
-    //TODO: récupérer les détails d'un genre en base de données et les envoyer à la vue hbs pour affichage dans le formulaire de modification
-});
 //-Page détail d'un genre
 app.get('/genres/:id', async function(request, response) {
     //TODO: récupérer les détails d'un genre en base de données et les envoyer à la vue hbs pour affichage
@@ -108,6 +134,15 @@ app.use(function(request, response) {
 
 
 // ---- Lancement du serveur ----
-app.listen(port, function() {
-    console.log(`Server is running at http://localhost:${port}`);
-});
+async function startServer() {
+    // Initialiser les genres avant de démarrer le serveur
+    await initializeGenres();
+    
+    // Démarrer le serveur
+    app.listen(port, function() {
+        console.log(`Server is running at http://localhost:${port}`);
+    });
+}
+
+// --- Lancement du serveur
+app.listen(port, startServer());
