@@ -569,7 +569,6 @@ app.get('/editeurs/:id', async function(request, response) {
 });
 
 // ---- Middlewares d'erreurs ----
-
 app.use(function(err, request, response, next) {
     response.status(500).send('Something broke!')
 })
@@ -600,7 +599,6 @@ async function startServer() {
         process.exit(1);
     }
 }
-
 startServer().catch(error => {
     console.error('Erreur fatale:', error);
     process.exit(1);

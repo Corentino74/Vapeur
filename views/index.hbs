@@ -5,7 +5,7 @@
     </div>
     
     {{#if jeuxMisEnAvant.length}}
-        <div class="mise-en-avant-section">
+        <div class="content-section">
             <h3>Jeux mis en avant</h3>
             <div class="games-grid">
                 {{#each jeuxMisEnAvant}}
@@ -29,12 +29,10 @@
                                     {{/each}}
                                 </div>
                             </div>
-                            <div class="star-container">
-                                <button class="star-button active" data-game-id="{{id}}" 
-                                        title="Retirer des favoris">
-                                    ⭐
-                                </button>
-                            </div>
+                            <button class="featured-star active" data-game-id="{{id}}" 
+                                    title="Retirer des favoris">
+                                ⭐
+                            </button>
                         </div>
                     </a>
                 </div>
@@ -44,14 +42,13 @@
     {{else}}
         <div class="empty-state">
             <h2>Aucun jeu mis en avant</h2>
-            <p>Aucun jeu n'est actuellement mis en avant.</p>
             <a href="/jeux" class="btn btn-primary">Voir tous les jeux</a>
         </div>
     {{/if}}
 
     {{#if editeurs.length}}
-        <div class="editeurs-section">
-            <h3>Éditeurs</h3>
+        <div class="content-section">
+            <h3>Éditeurs récent</h3>
             <div class="editeurs-grid-home">
                 {{#each editeurs}}
                     <a href="/editeurs/{{id}}" class="card-link">

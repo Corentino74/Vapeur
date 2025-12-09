@@ -994,12 +994,12 @@ input[type="submit"].btn {
     font-size: 0.9rem;
 }
 
-/* Section éditeurs page d'accueil */
-.editeurs-section {
+/* Sections communes de la page d'accueil */
+.content-section {
     margin-top: 3rem;
 }
 
-.editeurs-section h3 {
+.content-section h3 {
     color: #ffffff;
     font-size: 1.8rem;
     margin-bottom: 1.5rem;
