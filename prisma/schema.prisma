@@ -16,14 +16,12 @@ model JeuVideo {
   id          Int       @id @default(autoincrement())
   titre       String    @unique
   description String
-  releaseDate DateTime? // Date optionnelle
-  mis_avant   Boolean   @default(false) // par défaut un jeu n'est pas mis en avant
-  image       String?   // URL ou chemin vers l'image du jeu (optionnel)
-  
-  // Relations
-  editeur     Editeur?  @relation(fields: [editeurId], references: [id])
-  editeurId   Int?      // Éditeur optionnel
-  genres      JeuVideoGenre[] // Relation Many-to-Many avec les genres
+  releaseDate DateTime //now() est une fonction de prisma qui permet de définir la date actuelle
+  genre       Genre   @relation(fields: [genreId], references: [id]) // Genre est une autre ressource
+  genreId     Int
+  editeur     Editeur @relation(fields: [editeurId], references: [id]) // Editeur est une autre ressource
+  editeurId   Int
+  mis_avant   Boolean  @default(false) // Par défaut, un jeu n'est pas mis en avant
 }
 
 // Genres de jeux - Liste fixe prédéfinie
