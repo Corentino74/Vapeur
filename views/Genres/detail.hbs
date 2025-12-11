@@ -1,0 +1,52 @@
+<main>
+    <div class="content-header">
+        <h1>Genre: {{genre.nom}}</h1>
+        <a href="/genres" class="btn btn-secondary">Retour aux genres</a>
+    </div>
+
+    {{#if jeux.length}}
+        <p class="genre-description">{{jeux.length}} jeu{{#unless (eq jeux.length 1)}}x{{/unless}} dans ce genre :</p>
+        
+        <div class="games-grid">
+            {{#each jeux}}
+            <div class="game-card">
+                <div class="game-image">
+                    {{#if image}}
+                        <img src="{{image}}" alt="{{titre}}" class="game-cover">
+                    {{else}}
+                        <div class="image-placeholder">
+                            <span>Aucune image</span>
+                        </div>
+                    {{/if}}
+                </div>
+                <div class="game-info">
+                    <h3><a href="/jeux/{{id}}">{{titre}}</a></h3>
+                    <div class="game-meta">
+                        <span class="publisher">{{editeur.nom}}</span>
+                    </div>
+                    <div class="game-genres">
+                        {{#each genres}}
+                            <span class="genre-tag">{{genre.nom}}</span>
+                        {{/each}}
+                    </div>
+                    {{#if mis_avant}}
+                        <span class="featured-badge">Mis en avant</span>
+                    {{/if}}
+                </div>
+                <div class="game-actions">
+                    <a href="/jeux/modifier/{{id}}" class="btn btn-secondary">Modifier</a>
+                    <form method="POST" action="/jeux/supprimer/{{id}}" style="display: inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce jeu ?')">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    {{else}}
+        <div class="empty-state">
+            <h2>Aucun jeu dans ce genre</h2>
+            <p>Il n'y a encore aucun jeu classé dans le genre "{{genre.nom}}".</p>
+            <a href="/jeux/ajouter" class="btn btn-primary">Ajouter un jeu</a>
+        </div>
+    {{/if}}
+</main>

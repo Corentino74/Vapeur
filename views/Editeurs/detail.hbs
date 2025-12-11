@@ -1,0 +1,69 @@
+<main>
+    <div class="content-header">
+        <h1>{{editeur.nom}}</h1>
+        <div class="editeur-actions">
+            <a href="/editeurs" class="btn btn-secondary">Retour à la liste</a>
+            <a href="/editeurs/modifier/{{editeur.id}}" class="btn btn-primary">Modifier</a>
+            <form method="POST" action="/editeurs/supprimer/{{editeur.id}}" style="display: inline;">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet éditeur ? Tous ses jeux seront également supprimés.')">Supprimer</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="editeur-detail">
+        <div class="editeur-info-section">
+            <h2>Informations</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Nom :</strong>
+                    <span>{{editeur.nom}}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Jeux publiés :</strong>
+                    <span>{{editeur.jeux_publies.length}} jeu{{#unless (eq editeur.jeux_publies.length 1)}}x{{/unless}}</span>
+                </div>
+            </div>
+        </div>
+
+        {{#if editeur.jeux_publies.length}}
+            <div class="published-games-section">
+                <h2>Jeux publiés</h2>
+                <div class="games-grid">
+                    {{#each editeur.jeux_publies}}
+                    <div class="game-card">
+                        <div class="game-image">
+                            {{#if image}}
+                                <img src="{{image}}" alt="{{titre}}" class="game-cover">
+                            {{else}}
+                                <div class="image-placeholder">
+                                    <span>Aucune image</span>
+                                </div>
+                            {{/if}}
+                        </div>
+                        <div class="game-info">
+                            <h3><a href="/jeux/{{id}}">{{titre}}</a></h3>
+                            <div class="game-genres">
+                                {{#each genres}}
+                                    <span class="genre-tag">{{genre.nom}}</span>
+                                {{/each}}
+                            </div>
+                            {{#if mis_avant}}
+                                <span class="featured-badge">Mis en avant</span>
+                            {{/if}}
+                        </div>
+                        <div class="game-actions">
+                            <a href="/jeux/modifier/{{id}}" class="btn btn-secondary">Modifier</a>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        {{else}}
+            <div class="empty-games">
+                <h2>Aucun jeu publié</h2>
+                <p>Cet éditeur n'a encore publié aucun jeu dans la base de données.</p>
+                <a href="/jeux/ajouter" class="btn btn-primary">Ajouter un jeu</a>
+            </div>
+        {{/if}}
+    </div>
+</main>

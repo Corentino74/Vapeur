@@ -10,10 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modèle de ressource "Jeux Vidéo"
+// Jeux vidéo - Modèle principal
 model JeuVideo {
-  id          Int      @id @default(autoincrement()) @unique
-  titre       String
+  // Données/variables
+  id          Int       @id @default(autoincrement())
+  titre       String    @unique
   description String
   releaseDate DateTime //now() est une fonction de prisma qui permet de définir la date actuelle
   genre       Genre   @relation(fields: [genreId], references: [id]) // Genre est une autre ressource
@@ -23,16 +24,29 @@ model JeuVideo {
   mis_avant   Boolean  @default(false) // Par défaut, un jeu n'est pas mis en avant
 }
 
-// Modèle de ressource "Genre"
+// Genres de jeux - Liste fixe prédéfinie
 model Genre {
-  id          Int      @id @default(autoincrement()) @unique
-  nom             String     // Parmis la liste : Action, Aventure, RPG, Simulation, Sport, MMORPG ! Attention : Les genres de jeux sont déjà définis dans la base de données. Au démarrage du serveur, s'il n'existent pas, ils sont créés en base de données AVANT qu'on puisse accéder à l'app via le navigateur.
-  jeux_associés   JeuVideo[] // Relation avec les jeux vidéo
+  id    Int    @id @default(autoincrement())
+  nom   String @unique
+  
+  // Relation Many-to-Many avec les jeux
+  jeux  JeuVideoGenre[]
 }
 
-// Modèle de ressource "Editeur"
+// Table de jointure pour la relation Many-to-Many Jeux <-> Genres
+model JeuVideoGenre {
+  jeu     JeuVideo @relation(fields: [jeuId], references: [id], onDelete: Cascade)
+  jeuId   Int
+  genre   Genre    @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId Int
+  @@id([jeuId, genreId])
+}
+
+// Éditeurs de jeux
 model Editeur {
-  id          Int      @id @default(autoincrement()) @unique
-  nom             String                // Nom de l'éditeur
-  jeux_publies    JeuVideo[]            // Relation avec les jeux vidéo
+  id           Int        @id @default(autoincrement())
+  nom          String     @unique
+  
+  // Relations
+  jeux_publies JeuVideo[] // Un éditeur peut publier plusieurs jeux
 }

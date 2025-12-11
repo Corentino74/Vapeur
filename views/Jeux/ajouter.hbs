@@ -1,0 +1,48 @@
+<main>
+    <div class="content-header">
+        <h1>Ajouter un jeu</h1>
+        <a href="/jeux" class="btn btn-secondary">Retour à la liste</a>
+    </div>
+
+    <form method="POST" action="/jeux/ajouter" class="game-form">
+        {{formField type="text" id="titre" name="titre" label="Titre du jeu" required=true}}
+        {{formField type="textarea" id="description" name="description" label="Description" rows="4"}}
+        {{formField type="date" id="releaseDate" name="releaseDate" label="Date de sortie"}}
+        
+        <div class="form-group">
+            <label for="editeurId">Éditeur</label>
+            <select id="editeurId" name="editeurId" class="form-control">
+                <option value="">Sélectionnez un éditeur (optionnel)</option>
+                {{#each editeurs}}
+                    <option value="{{id}}">{{nom}}</option>
+                {{/each}}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Genres</label>
+            <div class="checkbox-group">
+                {{#each genres}}
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="genreIds" value="{{id}}">
+                        {{nom}}
+                    </label>
+                {{/each}}
+            </div>
+        </div>
+        
+        {{formField type="url" id="image" name="image" label="URL de l'image" placeholder="https://exemple.com/image.jpg"}}
+        
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="mis_avant">
+                Mettre en avant ce jeu
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Ajouter le jeu</button>
+            <a href="/jeux" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</main>

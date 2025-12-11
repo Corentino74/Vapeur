@@ -1,0 +1,32 @@
+<main>
+    <div class="content-header">
+        <h1>Modifier "{{editeur.nom}}"</h1>
+        <a href="/editeurs/{{editeur.id}}" class="btn btn-secondary">Retour à l'éditeur</a>
+    </div>
+
+    <form method="POST" action="/editeurs/modifier/{{editeur.id}}" class="game-form">
+        <div class="form-group">
+            <label for="nom">Nom de l'éditeur *</label>
+            <input type="text" id="nom" name="nom" value="{{editeur.nom}}" required>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Modifier l'éditeur</button>
+            <a href="/editeurs/{{editeur.id}}" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+
+    {{#if editeur.jeux_publies.length}}
+        <div class="related-content">
+            <h2>Jeux publiés par cet éditeur ({{editeur.jeux_publies.length}})</h2>
+            <div class="related-games">
+                {{#each editeur.jeux_publies}}
+                    <div class="related-game-item">
+                        <a href="/jeux/{{id}}">{{titre}}</a>
+                        <span class="release-date">{{formatDate releaseDate}}</span>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    {{/if}}
+</main>
