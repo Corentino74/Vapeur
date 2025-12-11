@@ -16,8 +16,10 @@ model JeuVideo {
   titre       String
   description String
   releaseDate DateTime //now() est une fonction de prisma qui permet de définir la date actuelle
-  genre       Genre   // Genre est une autre ressource
-  editeur     Editeur // Editeur est une autre ressource
+  genre       Genre   @relation(fields: [genreId], references: [id]) // Genre est une autre ressource
+  genreId     Int
+  editeur     Editeur @relation(fields: [editeurId], references: [id]) // Editeur est une autre ressource
+  editeurId   Int
   mis_avant   Boolean  @default(false) // Par défaut, un jeu n'est pas mis en avant
 }
 
