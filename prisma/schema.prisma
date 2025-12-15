@@ -15,9 +15,6 @@ model JeuVideo {
   // Données/variables
   id          Int       @id @default(autoincrement())
   titre       String    @unique
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
   description String
   releaseDate DateTime? // Date optionnelle
   mis_avant   Boolean   @default(false) // par défaut un jeu n'est pas mis en avant
@@ -27,27 +24,6 @@ model JeuVideo {
   editeur     Editeur?  @relation(fields: [editeurId], references: [id])
   editeurId   Int?      // Éditeur optionnel
   genres      JeuVideoGenre[] // Relation Many-to-Many avec les genres
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-  description String?
-  releaseDate DateTime?
-  editeur     Editeur?  @relation(fields: [editeurId], references: [id])
-  editeurId   Int?
-  mis_avant   Boolean   @default(false)
-  image       String?
-  
-  // Relations
-  genres      JeuVideoGenre[]
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 }
 
 // Genres de jeux - Liste fixe prédéfinie
@@ -55,7 +31,7 @@ model Genre {
   id    Int    @id @default(autoincrement())
   nom   String @unique
   
-  // Relations
+  // Relation Many-to-Many avec les jeux
   jeux  JeuVideoGenre[]
 }
 
