@@ -5,10 +5,24 @@
 
 ## 💻 Comment l'installer ?
 - Clonez le repository
-- npm i
-- créez le fichier .env à la racine avec comme contenu : DATABASE_URL="file:./dev.db" si il nes pas déjà présent
-- npx prisma migrate deploy
-- npm run start
+
+- Ouvrez un terminal :
+- tapez la commande : 
+```
+npm i
+```
+- créez le fichier .env à la racine avec comme contenu : 
+```
+DATABASE_URL="file:./dev.db" si il nes pas déjà présent
+```
+- tapez la commande :
+```
+npx prisma migrate deploy
+```
+- tapez la commande :
+```
+npm run start
+```
 
 ## 📄 Fonctionalités (suivant le cahier des charges) :
 - Disposer des éléments suivants : Jeux, Éditeurs, Genres (cf structure de la base de données)
