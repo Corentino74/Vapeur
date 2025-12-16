@@ -11,9 +11,9 @@
 ```
 npm i
 ```
-- créez le fichier .env à la racine avec comme contenu : 
+- créez si il n'es pas déjà présent le fichier .env à la racine avec comme contenu : 
 ```
-DATABASE_URL="file:./dev.db" si il nes pas déjà présent
+DATABASE_URL="file:./dev.db" 
 ```
 - tapez la commande :
 ```
