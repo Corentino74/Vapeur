@@ -7,7 +7,6 @@ database.db
 dev.db
 prisma/dev.db
 
-# Fichiers système macOS
 .DS_Store
 **/.DS_Store
 
