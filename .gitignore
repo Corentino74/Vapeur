@@ -1,8 +1,15 @@
 node_modules
-
 /generated/prisma
-
-.env
-
 database.db
+
+# Base de données SQLite (générée par prisma migrate)
+*.db
 dev.db
+prisma/dev.db
+
+# Fichiers système macOS
+.DS_Store
+**/.DS_Store
+
+# Variables d'environnement
+.env
