@@ -6,7 +6,7 @@
 ## 💻 Comment l'installer ?
 - Clonez le repository
 - npm i
-- créez le fichier .env à la racine avec comme contenu : DATABASE_URL="file:./dev.db"
+- créez le fichier .env à la racine avec comme contenu : DATABASE_URL="file:./dev.db" si il nes pas déjà présent
 - npx prisma migrate deploy
 - npm run start
 
